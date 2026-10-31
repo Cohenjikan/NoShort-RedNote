@@ -38,7 +38,7 @@ async function open(headless) {
     deviceScaleFactor: headless ? 3 : 1,
     isMobile: true,
     hasTouch: true,
-    userAgent: UA,
+    userAgent: flags.has('--iphone') ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1' : UA,
     locale: 'zh-CN',
   });
 }
@@ -131,6 +131,7 @@ if (cmd === 'shot') {
     else if (k === '--wait') await page.waitForTimeout(Number(val));
     else if (k === '--shot') await capture(page, tag + '-' + val);
     else if (k === '--hold') { const [x, y] = val.split(',').map(Number); await page.mouse.move(x, y); await page.mouse.down(); await page.waitForTimeout(1100); await page.mouse.up(); }
+    else if (k === '--upload') { const [sel, file] = val.split('|'); await page.locator(sel).first().setInputFiles(path.resolve(here, file)); }
     else if (k === '--eval') console.log('eval:', JSON.stringify(await page.evaluate(val), null, 1));
   }
   await ctx.close();

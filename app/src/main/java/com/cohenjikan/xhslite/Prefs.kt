@@ -20,6 +20,11 @@ class Prefs(ctx: Context) {
         get() = sp.getBoolean("imageOnly", false)
         set(v) = sp.edit().putBoolean("imageOnly", v).apply()
 
+    /** hide the 发布 entry in the bottom bar (shown by default) */
+    var hidePublish: Boolean
+        get() = sp.getBoolean("hidePublish", false)
+        set(v) = sp.edit().putBoolean("hidePublish", v).apply()
+
     /** inject eruda (in-page devtools) */
     var debug: Boolean
         get() = sp.getBoolean("debug", false)
@@ -30,6 +35,7 @@ class Prefs(ctx: Context) {
         .put("hideFeed", hideFeed)
         .put("hideRelated", hideRelated)
         .put("imageOnly", imageOnly)
+        .put("hidePublish", hidePublish)
         .put("debug", debug)
         .toString()
 }

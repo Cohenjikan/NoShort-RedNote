@@ -14,6 +14,7 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
@@ -67,6 +68,16 @@ class MainActivity : ComponentActivity() {
 
     private var fullscreen: View? = null
     private var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
+
+    /** page waiting for files from the system picker (image / video upload on the 发布 page) */
+    private var fileCallback: ValueCallback<Array<Uri>>? = null
+    private val filePicker = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        val data = r.data
+        val uris = if (r.resultCode != RESULT_OK || data == null) null
+        else data.clipData?.let { c -> Array(c.itemCount) { c.getItemAt(it).uri } } ?: data.data?.let { arrayOf(it) }
+        fileCallback?.onReceiveValue(uris)
+        fileCallback = null
+    }
 
     private val settingsPage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
         when (r.resultCode) {
@@ -224,6 +235,29 @@ class MainActivity : ComponentActivity() {
             }
 
             override fun onHideCustomView() = exitFullscreen()
+
+            // <input type=file> on the 发布 page: system photo / file picker, several files when the page allows
+            override fun onShowFileChooser(view: WebView, callback: ValueCallback<Array<Uri>>, params: FileChooserParams): Boolean {
+                fileCallback?.onReceiveValue(null)
+                fileCallback = callback
+                val intent = params.createIntent().apply {
+                    if (params.mode == FileChooserParams.MODE_OPEN_MULTIPLE) putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                }
+                return try {
+                    filePicker.launch(intent)
+                    true
+                } catch (_: ActivityNotFoundException) {
+                    fileCallback = null
+                    false
+                }
+            }
+        }
+
+        // the top-bar gear inject.js adds posts "settings" here; only Xiaohongshu's own pages can reach it
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+            WebViewCompat.addWebMessageListener(web, "xlBridge", SCRIPT_ORIGINS) { _, message, _, isMainFrame, _ ->
+                if (isMainFrame && message.data == "settings") openSettings()
+            }
         }
     }
 
@@ -245,7 +279,7 @@ class MainActivity : ComponentActivity() {
         var downY = 0f
         val open = Runnable {
             web.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            settingsPage.launch(Intent(this, SettingsActivity::class.java))
+            openSettings()
         }
         web.setOnTouchListener { _, e ->
             when (e.actionMasked) {
@@ -260,6 +294,8 @@ class MainActivity : ComponentActivity() {
             false
         }
     }
+
+    private fun openSettings() = settingsPage.launch(Intent(this, SettingsActivity::class.java))
 
     // ------------------------------------------------------------------ injection
 

@@ -123,10 +123,13 @@
     if (!h) return;
     var want = {
       'xl': true,
+      // creator.xiaohongshu.com: the publishing site behind the 发布 button, laid out for desktop only
+      'xl-creator': location.host === 'creator.xiaohongshu.com',
       'xl-r-note': false, 'xl-r-search': false, 'xl-r-explore': false, 'xl-r-other': false,
       'xl-hide-feed': !!cfg.hideFeed,
       'xl-hide-related': !!cfg.hideRelated,
       'xl-image-only': !!cfg.imageOnly,
+      'xl-hide-publish': !!cfg.hidePublish,
       // a note can be open as a modal over the feed while the path still looks like the feed
       'xl-note-open': !!document.querySelector(SEL.note)
     };
@@ -177,6 +180,35 @@
     lastFilterClick = Date.now();
     b.click();
     note('pressed 只看图文');
+  }
+
+  // ---------------------------------------------------------------- 1c. settings gear in the top bar
+  // Opens the app's settings page (Android, through the xlBridge message channel MainActivity adds)
+  // or the userscript's panel (window.__xlOpenSettings). Long-pressing the top-right corner still works.
+  var GEAR_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>';
+
+  function openSettings() {
+    if (typeof window.__xlOpenSettings === 'function') window.__xlOpenSettings();
+    else if (window.xlBridge) window.xlBridge.postMessage('settings');
+  }
+
+  function ensureGear() {
+    var bar = document.querySelector('.header-container');
+    if (!bar) return;
+    var g = document.getElementById('xl-gear');
+    if (!g) {
+      g = document.createElement('div');
+      g.id = 'xl-gear';
+      g.setAttribute('role', 'button');
+      g.setAttribute('aria-label', '设置');
+      g.innerHTML = GEAR_SVG;
+      g.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openSettings();
+      });
+    }
+    if (g.parentNode !== bar) bar.appendChild(g);
   }
 
   // ---------------------------------------------------------------- 2. app nags the CSS missed
@@ -322,6 +354,7 @@
       ensureStyle();
       setClasses();
       if (document.body) {
+        ensureGear();
         enforceImageOnly();
         hideNags();
         if (routeClass() === 'xl-r-explore') checkColumns();
@@ -365,6 +398,7 @@
     log: log,
     probe: probe,
     apply: apply,
+    openSettings: openSettings,
     setConfig: function (c) {
       var feedWas = !!cfg.hideFeed;
       var imageWas = !!cfg.imageOnly;

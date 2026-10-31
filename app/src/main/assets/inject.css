@@ -39,11 +39,35 @@ html.xl-grid-fallback .feeds-container > .note-item {
 }
 
 /* ===================================================== 2. nags and things outside home / search / notes */
-/* bottom nav: keep 首页 通知 消息 我; drop 点点 (AI chat), 直播 (live list), 发布 (creator site) */
+/* bottom nav: keep 首页 发布 通知 消息 我; drop 点点 (AI chat) and 直播 (live list).
+ * 发布 (creator site, section 6) goes too with the xl-hide-publish switch. */
 html.xl .bottom-menu-ai .channel-list > :has(a[href^="/ai_chat"]),
 html.xl .bottom-menu-ai .channel-list > :has(a[href^="/livelist"]),
-html.xl .bottom-menu-ai .channel-list > :has(a[href*="creator.xiaohongshu.com"]) {
+html.xl-hide-publish .bottom-menu-ai .channel-list > :has(a[href*="creator.xiaohongshu.com"]) {
   display: none !important;
+}
+
+/* settings gear that inject.js puts in the top bar, right of the logo; out of the way while the
+ * search box is open (it then has a 取消 button) */
+#xl-gear {
+  position: absolute;
+  top: 4px;
+  left: 96px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  cursor: pointer;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  #xl-gear { color: #ddd; }
+}
+html.xl .header-container:has([class*="cancel"]) #xl-gear {
+  display: none;
 }
 html.xl .bottom-menu-ai .channel-list > * {
   flex: 1 1 0 !important;
@@ -128,4 +152,74 @@ html.xl .header-container .min-width-search-icon {
 }
 html.xl .feeds-page {
   padding-top: 48px !important;
+}
+
+/* ===================================================== 6. publishing (creator.xiaohongshu.com) */
+/* The 发布 button opens the creator site's publish page: a 208 px menu column plus a 952 px wide
+ * publish area. Drop the menu (only publishing is used here) and fit the publish area to the screen. */
+html.xl-creator .menu-container,
+html.xl-creator .chat-fab-wrap,
+html.xl-creator [class*="guide-tip"],
+html.xl-creator .d-topbar-default .name-box {
+  display: none !important;
+}
+html.xl-creator .main-container {
+  display: block !important;
+}
+html.xl-creator .microapp-container,
+html.xl-creator #creator-publish-dom,
+html.xl-creator #creator-publish-dom > div,
+html.xl-creator .publish-vue-container,
+html.xl-creator .outarea,
+html.xl-creator .upload-wrapper,
+html.xl-creator .upload-container,
+html.xl-creator .upload-content {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+html.xl-creator .upload-container {
+  padding: 0 12px !important;
+}
+html.xl-creator .upload-container .header {
+  width: 100% !important;
+  padding: 0 !important;
+  flex-wrap: wrap !important;
+}
+html.xl-creator .tips-wrapper {
+  display: none !important;
+}
+html.xl-creator .header-tabs {
+  overflow-x: auto !important;
+}
+html.xl-creator .creator-tab .title {
+  white-space: nowrap !important;
+}
+/* editor (after picking images): 680 px content column + 208 px preview column + onboarding popups */
+html.xl-creator .publish-page-preview,
+html.xl-creator .feature-guide {
+  display: none !important;
+}
+html.xl-creator .publish-page,
+html.xl-creator .publish-page-content,
+html.xl-creator .publish-page-content [class^="publish-page-content-"],
+html.xl-creator .publish-page-content .edit-container,
+html.xl-creator .publish-page-content xhs-publish-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+html.xl-creator .publish-page {
+  display: block !important;
+}
+html.xl-creator .publish-page-content {
+  margin: 0 !important;
+}
+html.xl-creator .publish-page-content > [class^="publish-page-content-"] {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
 }

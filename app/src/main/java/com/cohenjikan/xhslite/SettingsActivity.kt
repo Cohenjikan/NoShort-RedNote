@@ -46,6 +46,8 @@ class SettingsActivity : ComponentActivity() {
         col.addView(divider())
         col.addView(switchRow("只看图文", "推荐流不出现视频笔记，隐藏 RED 和视频频道", prefs.imageOnly) { prefs.imageOnly = it })
         col.addView(divider())
+        col.addView(switchRow("隐藏发布", "底栏不显示「发布」入口", prefs.hidePublish) { prefs.hidePublish = it })
+        col.addView(divider())
         col.addView(switchRow("隐藏猜你想搜", "笔记正文下面的搜索推荐", prefs.hideRelated) { prefs.hideRelated = it })
 
         col.addView(section("操作"))
@@ -58,7 +60,7 @@ class SettingsActivity : ComponentActivity() {
         col.addView(section("调试"))
         col.addView(switchRow("页面内调试工具", "注入 eruda，右下角出现齿轮按钮；在 Console 里运行 __xl.probe() 查看选择器命中数", prefs.debug) { prefs.debug = it })
 
-        col.addView(text("版本 ${BuildConfig.VERSION_NAME}（${BuildConfig.VERSION_CODE}）", Type.TINY, pal.muted).apply {
+        col.addView(text("点顶栏的齿轮或长按页面右上角都能打开这里\n版本 ${BuildConfig.VERSION_NAME}（${BuildConfig.VERSION_CODE}）", Type.TINY, pal.muted).apply {
             setPadding(dp(16), dp(24), dp(16), dp(16))
         })
 

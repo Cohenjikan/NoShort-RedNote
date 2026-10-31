@@ -78,10 +78,11 @@ const panel = String.raw`
     box.appendChild(head);
     box.appendChild(row('hideFeed', '只留搜索', '隐藏首页频道和推荐流'));
     box.appendChild(row('imageOnly', '只看图文', '推荐流不出现视频笔记，隐藏 RED 和视频频道'));
+    box.appendChild(row('hidePublish', '隐藏发布', '底栏不显示「发布」入口'));
     box.appendChild(row('hideRelated', '隐藏猜你想搜', '笔记正文下面的搜索推荐'));
     var foot = document.createElement('div');
     foot.style.cssText = 'padding:10px 16px 14px;font-size:11px;line-height:1.45;color:' + muted + ';border-top:1px solid ' + line;
-    foot.textContent = '版本 ' + VERSION + ' · 长按页面右上角打开这里';
+    foot.textContent = '版本 ' + VERSION + ' · 点顶栏的齿轮或长按页面右上角打开这里';
     box.appendChild(foot);
     wrap.appendChild(box);
     wrap.addEventListener('click', function (e) { if (e.target === wrap) wrap.remove(); });
@@ -89,7 +90,7 @@ const panel = String.raw`
   }
 
   function apply(c) {
-    window.__XL_CFG = { hideFeed: !!c.hideFeed, hideRelated: !!c.hideRelated, imageOnly: !!c.imageOnly, debug: false };
+    window.__XL_CFG = { hideFeed: !!c.hideFeed, hideRelated: !!c.hideRelated, imageOnly: !!c.imageOnly, hidePublish: !!c.hidePublish, debug: false };
     if (window.__xl) {
       window.__xl.setConfig(window.__XL_CFG);
       window.__xl.apply('settings');
@@ -137,6 +138,7 @@ const out = `// ==UserScript==
   var VERSION = ${JSON.stringify(version)};
 ${panel}
   apply(loadCfg());
+  window.__xlOpenSettings = openPanel; // the top-bar gear (inject.js) calls this
   window.__XL_CSS = ${JSON.stringify(css)};
 
   // ---- app/src/main/assets/inject.js ----
