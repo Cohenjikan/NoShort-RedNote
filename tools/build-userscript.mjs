@@ -77,6 +77,7 @@ const panel = String.raw`
     head.appendChild(close);
     box.appendChild(head);
     box.appendChild(row('hideFeed', '只留搜索', '隐藏首页频道和推荐流'));
+    box.appendChild(row('imageOnly', '只看图文', '推荐流不出现视频笔记，隐藏 RED 和视频频道'));
     box.appendChild(row('hideRelated', '隐藏猜你想搜', '笔记正文下面的搜索推荐'));
     var foot = document.createElement('div');
     foot.style.cssText = 'padding:10px 16px 14px;font-size:11px;line-height:1.45;color:' + muted + ';border-top:1px solid ' + line;
@@ -88,7 +89,7 @@ const panel = String.raw`
   }
 
   function apply(c) {
-    window.__XL_CFG = { hideFeed: !!c.hideFeed, hideRelated: !!c.hideRelated, debug: false };
+    window.__XL_CFG = { hideFeed: !!c.hideFeed, hideRelated: !!c.hideRelated, imageOnly: !!c.imageOnly, debug: false };
     if (window.__xl) {
       window.__xl.setConfig(window.__XL_CFG);
       window.__xl.apply('settings');

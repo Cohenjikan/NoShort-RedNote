@@ -33,6 +33,9 @@
     note: '.note-detail-mask, #noteContainer',
     // login modal / page
     login: '.login-container',
+    // the site's own "只看图文" switch on the homepage feed; carries .checked-border while on
+    imageOnly: '#image-note-filter-el .graphic-filter',
+    imageOnlyOn: 'checked-border',
     // controls that would jump to the previous/next note. None exist at 400 px (2026-11); kept as a net.
     noteSwitch: [
       '.note-detail-mask [class*="next-note"]',
@@ -55,6 +58,8 @@
   var NOTE_RE = /^\/(?:explore|red_video|search_result|discovery\/item)\/([0-9a-f]{16,32})/i;
   // Pages outside home / search / notes that are an endless stream: sent back to the homepage
   var BLOCKED_RE = /^\/(?:livelist|live)(?:\/|$)/i;
+  // video-only feed, sent back to the homepage while the image-only switch is on
+  var VIDEO_FEED_RE = /^\/red_video\/?$/i;
 
   // ---------------------------------------------------------------- state
   var cfg = {};
@@ -62,6 +67,7 @@
   var log = [];
   var lastOpenTap = 0;
   var lastUrl = location.href;
+  var lastFilterClick = 0;
 
   function note(msg) {
     log.push(new Date().toISOString().slice(11, 19) + ' ' + msg);
@@ -120,6 +126,7 @@
       'xl-r-note': false, 'xl-r-search': false, 'xl-r-explore': false, 'xl-r-other': false,
       'xl-hide-feed': !!cfg.hideFeed,
       'xl-hide-related': !!cfg.hideRelated,
+      'xl-image-only': !!cfg.imageOnly,
       // a note can be open as a modal over the feed while the path still looks like the feed
       'xl-note-open': !!document.querySelector(SEL.note)
     };
@@ -150,6 +157,26 @@
       h.classList.add('xl-grid-fallback');
       note('feed has ' + n + ' columns, grid fallback on');
     }
+  }
+
+  // ---------------------------------------------------------------- 1b. image notes only
+  // Uses the site's own "只看图文" filter, so the server sends only image notes and the waterfall has
+  // no holes. It doesn't survive a reload or a channel switch, so it is pressed again whenever it's off.
+  function filterButton() { return document.querySelector(SEL.imageOnly); }
+
+  function enforceImageOnly() {
+    if (!cfg.imageOnly) return;
+    if (VIDEO_FEED_RE.test(location.pathname)) {
+      location.replace('/explore');
+      return;
+    }
+    if (routeClass() !== 'xl-r-explore') return;
+    var b = filterButton();
+    if (!b || b.classList.contains(SEL.imageOnlyOn)) return;
+    if (Date.now() - lastFilterClick < 3000) return; // let the last press land before trying again
+    lastFilterClick = Date.now();
+    b.click();
+    note('pressed 只看图文');
   }
 
   // ---------------------------------------------------------------- 2. app nags the CSS missed
@@ -295,6 +322,7 @@
       ensureStyle();
       setClasses();
       if (document.body) {
+        enforceImageOnly();
         hideNags();
         if (routeClass() === 'xl-r-explore') checkColumns();
       }
@@ -339,7 +367,13 @@
     apply: apply,
     setConfig: function (c) {
       var feedWas = !!cfg.hideFeed;
+      var imageWas = !!cfg.imageOnly;
       cfg = c || {};
+      // switched off: release the site's filter we pressed
+      if (imageWas && !cfg.imageOnly) {
+        var b = filterButton();
+        if (b && b.classList.contains(SEL.imageOnlyOn)) b.click();
+      }
       // the waterfall laid itself out at zero size while hidden and can't recover; reload the feed.
       // (hiding it with visibility instead would keep the "load more" sentinel firing in the background)
       if (feedWas && !cfg.hideFeed && routeClass() === 'xl-r-explore') setTimeout(function () { location.reload(); }, 50);

@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 object Updater {
     private const val API = "https://api.github.com/repos/Cohenjikan/NoShort-RedNote/releases/latest"
     private const val ASSET = "xhs-lite.apk"
-    /** automatic checks (on app start) at most this often; the settings button always checks */
-    private const val AUTO_EVERY_MS = 6 * 60 * 60 * 1000L
+    /** automatic checks (whenever the app comes to the front) at most this often; the settings button always checks */
+    private const val AUTO_EVERY_MS = 30 * 60 * 1000L
 
     private val io = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())

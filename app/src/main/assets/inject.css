@@ -87,6 +87,15 @@ html.xl-hide-feed.xl-r-explore .feeds-loading {
   display: none !important;
 }
 
+/* 4c. image notes only: inject.js keeps the site's "只看图文" filter on; its button and the video-only
+ * channels (RED = /red_video, 视频) go away so they can't undo it */
+html.xl-image-only #image-note-filter-el,
+html.xl-image-only #red_channel_tab,
+html.xl-image-only .channel--mobile-only,
+html.xl-image-only [id="homefeed.video_v3"] {
+  display: none !important;
+}
+
 /* 4b. notes: hide the "猜你想搜" search suggestion under the text. The narrow note page has no
  * related-notes list; this capsule is the recommendation it does show. */
 html.xl-hide-related .note-detail-mask .xhs-capsule-widget-container {

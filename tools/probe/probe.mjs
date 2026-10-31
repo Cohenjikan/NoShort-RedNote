@@ -22,7 +22,7 @@ const SHIM = "try{Object.defineProperty(Navigator.prototype,'platform',{get:func
 const [cmd, ...rest] = process.argv.slice(2);
 const flags = new Set(rest.filter((a) => a.startsWith('--')));
 const [url = 'https://www.xiaohongshu.com/explore', name = 'page'] = rest.filter((a) => !a.startsWith('--'));
-const cfg = { hideFeed: flags.has('--hide-feed'), hideRelated: flags.has('--hide-related'), debug: true };
+const cfg = { hideFeed: flags.has('--hide-feed'), hideRelated: flags.has('--hide-related'), imageOnly: flags.has('--image-only'), debug: true };
 
 function bundle() {
   const js = fs.readFileSync(path.join(assets, 'inject.js'), 'utf8');

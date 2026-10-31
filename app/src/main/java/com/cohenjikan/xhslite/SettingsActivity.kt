@@ -44,6 +44,8 @@ class SettingsActivity : ComponentActivity() {
         col.addView(section("页面"))
         col.addView(switchRow("只留搜索", "隐藏首页频道和推荐流", prefs.hideFeed) { prefs.hideFeed = it })
         col.addView(divider())
+        col.addView(switchRow("只看图文", "推荐流不出现视频笔记，隐藏 RED 和视频频道", prefs.imageOnly) { prefs.imageOnly = it })
+        col.addView(divider())
         col.addView(switchRow("隐藏猜你想搜", "笔记正文下面的搜索推荐", prefs.hideRelated) { prefs.hideRelated = it })
 
         col.addView(section("操作"))

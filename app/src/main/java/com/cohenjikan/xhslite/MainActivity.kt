@@ -115,7 +115,6 @@ class MainActivity : ComponentActivity() {
 
         pushConfig()
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) web.loadUrl(HOME)
-        Updater.autoCheck(this)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -312,6 +311,7 @@ class MainActivity : ComponentActivity() {
         web.onResume()
         pushConfig()
         Updater.resume(this)
+        Updater.autoCheck(this)
     }
 
     override fun onPause() {
