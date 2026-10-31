@@ -1,0 +1,106 @@
+/*
+ * xhs-lite injected stylesheet.
+ *
+ * With width=device-width the desktop site sees a 400 px window (Xiaomi 17 Pro Max: 1200 px at
+ * density 3.0) and switches to its own narrow layout: 2-column feed with 12 px gutters, a top bar with
+ * a search icon, a bottom nav bar, and notes as one full-screen column. So this file does not re-lay
+ * out the page; it only hides things.
+ *
+ * Selectors checked 2026-11-01 against the logged-in site at 400x869 (tools/probe). When the site
+ * changes, re-run `node tools/probe/probe.mjs shot ...` and compare the outline.
+ *
+ * inject.js sets these classes on <html>:
+ *   xl-r-explore | xl-r-search | xl-r-note | xl-r-other   current route (/red_video counts as explore)
+ *   xl-note-open        a note is open (modal over a feed, or opened directly)
+ *   xl-hide-feed / xl-hide-related   settings switches
+ *   xl-grid-fallback    the site did not lay the feed out in 2 columns by itself
+ */
+
+.xl-hidden { display: none !important; }
+
+html.xl { -webkit-tap-highlight-color: transparent; }
+
+/* ===================================================== 1. feed: 2 columns */
+/* Native at 400 px: #exploreFeeds / #redFeeds.feeds-container, cards are absolutely placed
+ * section.note-item (182 px wide). Only if that ever stops being 2 columns, fall back to a plain grid. */
+html.xl-grid-fallback .feeds-container {
+  position: static !important;
+  height: auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  align-items: start !important;
+}
+html.xl-grid-fallback .feeds-container > .note-item {
+  position: static !important;
+  transform: none !important;
+  width: auto !important;
+  margin: 0 !important;
+}
+
+/* ===================================================== 2. nags and things outside home / search / notes */
+/* bottom nav: keep 首页 通知 消息 我; drop 点点 (AI chat), 直播 (live list), 发布 (creator site) */
+html.xl .bottom-menu-ai .channel-list > :has(a[href^="/ai_chat"]),
+html.xl .bottom-menu-ai .channel-list > :has(a[href^="/livelist"]),
+html.xl .bottom-menu-ai .channel-list > :has(a[href*="creator.xiaohongshu.com"]) {
+  display: none !important;
+}
+html.xl .bottom-menu-ai .channel-list > * {
+  flex: 1 1 0 !important;
+}
+/* onboarding bubbles: "为你推荐更多精彩", "不方便刷视频？试试只看图文", "可以添加到收藏夹啦" */
+html.xl .tooltip-wrapper.board-guide,
+html.xl .tooltip-wrapper.img-note-guide {
+  display: none !important;
+}
+/* "open / download the app" banners: none seen at 400 px (2026-11). Kept as a net; inject.js also
+ * hides fixed-position boxes whose text is an app nag. */
+html.xl [class*="download-app"],
+html.xl [class*="app-download"],
+html.xl [class*="open-app"],
+html.xl [class*="launch-app"] {
+  display: none !important;
+}
+
+/* ===================================================== 3. notes: no switching to the next note */
+/* At 400 px the note page (.note-detail-mask > #noteContainer, also for /red_video/<id>) has no
+ * next/previous control, and swipe / wheel / keys / a finished video don't change the note (tested
+ * 2026-11-01). The < > arrows on images page within one note and stay.
+ * These rules are a net in case the site adds such a control; inject.js also undoes any jump from one
+ * note straight to another that the user didn't tap. */
+html.xl .note-detail-mask [class*="next-note"],
+html.xl .note-detail-mask [class*="prev-note"],
+html.xl .note-detail-mask [class*="note-switch"],
+html.xl .note-detail-mask [class*="switch-note"],
+html.xl [class*="auto-play-next"],
+html.xl [class*="autoplay-next"] {
+  display: none !important;
+}
+
+/* ===================================================== 4. optional switches (default off) */
+/* 4a. homepage: keep only the search box (channel tabs, feed, 只看图文 / 刷新 buttons go) */
+html.xl-hide-feed.xl-r-explore .channel-container,
+html.xl-hide-feed.xl-r-explore .feeds-content__feed-layer,
+html.xl-hide-feed.xl-r-explore .feeds-container,
+html.xl-hide-feed.xl-r-explore .floating-btn-sets,
+html.xl-hide-feed.xl-r-explore .feeds-loading {
+  display: none !important;
+}
+
+/* 4b. notes: hide the "猜你想搜" search suggestion under the text. The narrow note page has no
+ * related-notes list; this capsule is the recommendation it does show. */
+html.xl-hide-related .note-detail-mask .xhs-capsule-widget-container {
+  display: none !important;
+}
+/* the empty page says where search is */
+html.xl-hide-feed.xl-r-explore .feeds-content::after {
+  content: "点右上角 🔍 搜索";
+  display: block;
+  box-sizing: border-box;
+  min-height: calc(100vh - 72px);
+  padding-top: 35vh;
+  text-align: center;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #6E6E6E;
+}

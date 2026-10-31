@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Only the window behind the views; colors match Claude-Remote ui/Theme.kt -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+    <color name="ic_launcher_background">#FF2442</color>
+</resources>
