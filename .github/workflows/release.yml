@@ -1,4 +1,4 @@
-# Push to main -> build a signed release APK -> publish it as a GitHub Release.
+# Push to main -> build a signed release APK + the Safari userscript -> publish both as a GitHub Release.
 # On the phone: open https://github.com/<owner>/<repo>/releases/latest/download/xhs-lite.apk
 #
 # Secrets (Settings -> Secrets and variables -> Actions), values in keystore/ on the PC:
@@ -61,4 +61,6 @@ jobs:
           tag="build-${{ github.run_number }}"
           msg="$(git log -1 --pretty=%s)"
           notes="$(printf '%s\n\nversionCode=%s' "$msg" "$VERSION_CODE")"
-          gh release create "$tag" xhs-lite.apk --target "$GITHUB_SHA" --title "$tag · $msg" --notes "$notes" --latest
+          # Safari userscript built from the same inject.js / inject.css; @version = versionCode
+          node tools/build-userscript.mjs "$VERSION_CODE" > noshort-rednote.user.js
+          gh release create "$tag" xhs-lite.apk noshort-rednote.user.js --target "$GITHUB_SHA" --title "$tag · $msg" --notes "$notes" --latest

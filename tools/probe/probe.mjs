@@ -8,6 +8,7 @@
 import { chromium } from 'playwright-core';
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -103,11 +104,14 @@ if (cmd === 'shot') {
   fs.mkdirSync(outDir, { recursive: true });
   const ctx = await open(true);
   const raw = flags.has('--raw');
-  if (!raw) await ctx.addInitScript({ content: SHIM + bundle() });
+  // --userscript: the packed Safari userscript (tools/build-userscript.mjs) instead of the app's bundle
+  const us = flags.has('--userscript');
+  if (us) await ctx.addInitScript({ content: execFileSync(process.execPath, [path.join(here, '../build-userscript.mjs'), 'test'], { encoding: 'utf8' }) });
+  else if (!raw) await ctx.addInitScript({ content: SHIM + bundle() });
   const page = ctx.pages()[0] || (await ctx.newPage());
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(7000);
-  if (!raw) await page.evaluate(bundle()); // what onPageFinished does
+  if (!raw && !us) await page.evaluate(bundle()); // what onPageFinished does
   await page.waitForTimeout(1000);
   const tag = name + (raw ? '-raw' : '');
   await capture(page, tag);
@@ -126,6 +130,7 @@ if (cmd === 'shot') {
     else if (k === '--press') await page.keyboard.press(val);
     else if (k === '--wait') await page.waitForTimeout(Number(val));
     else if (k === '--shot') await capture(page, tag + '-' + val);
+    else if (k === '--hold') { const [x, y] = val.split(',').map(Number); await page.mouse.move(x, y); await page.mouse.down(); await page.waitForTimeout(1100); await page.mouse.up(); }
     else if (k === '--eval') console.log('eval:', JSON.stringify(await page.evaluate(val), null, 1));
   }
   await ctx.close();

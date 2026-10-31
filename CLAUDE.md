@@ -23,6 +23,10 @@ These must never be committed (all are in .gitignore; check `git status` before 
 - Use `tools/probe` to check against the real site, not guesses: `node probe.mjs shot <url> <name> [--open-note] [--raw]`, then compare `out/*-outline.txt` with the screenshot. When the login expires, `node probe.mjs login` again (the user scans the QR code with their phone).
 - After a change, rebuild with `./gradlew assembleRelease` (signed with the local keystore) and copy the result to `xhs-lite.apk` in the project root for the user to install on the phone.
 
+## iPhone userscript
+
+`tools/build-userscript.mjs` packs inject.js + inject.css into `noshort-rednote.user.js` for Safari's Userscripts extension (CI attaches it to every release). It only adds the metadata block and an in-page settings panel; selector changes still go in the two asset files. Test it with `node tools/probe/probe.mjs shot <url> <name> --userscript`.
+
 ## Release
 
 The app has a built-in updater (`Updater.kt`) that reads `versionCode=N` from the latest GitHub Release's notes; the workflow writes that line, so keep it when changing the workflow. The repo is public under MIT.

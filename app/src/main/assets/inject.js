@@ -337,7 +337,13 @@
     log: log,
     probe: probe,
     apply: apply,
-    setConfig: function (c) { cfg = c || {}; },
+    setConfig: function (c) {
+      var feedWas = !!cfg.hideFeed;
+      cfg = c || {};
+      // the waterfall laid itself out at zero size while hidden and can't recover; reload the feed.
+      // (hiding it with visibility instead would keep the "load more" sentinel firing in the background)
+      if (feedWas && !cfg.hideFeed && routeClass() === 'xl-r-explore') setTimeout(function () { location.reload(); }, 50);
+    },
     setCss: function (c) { css = c || ''; }
   };
   window.__xl.setConfig(window.__XL_CFG || {});

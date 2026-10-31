@@ -38,6 +38,20 @@
 
 要求 Android 10+。开发时用的是小米 17 Pro Max（HyperOS），布局按 400dp 宽的屏幕调过，其他手机应该也能用。
 
+## iPhone / iPad（Safari）
+
+iPhone 装不了 APK，改用 Safari 扩展 **Userscripts** 运行同一套脚本（和安卓共用 `inject.js` / `inject.css`）：
+
+1. 在 App Store 安装 [Userscripts](https://apps.apple.com/app/userscripts/id1463298887)（免费、开源）。
+2. 打开 **设置 → App → Safari → 扩展 → Userscripts**，启用它，并允许它在 `xiaohongshu.com` 上运行。
+3. 用 Safari 打开 [`noshort-rednote.user.js`](https://github.com/Cohenjikan/NoShort-RedNote/releases/latest/download/noshort-rednote.user.js)，点地址栏的扩展按钮 → Userscripts → 安装。之后扩展会按 `@updateURL` 自动更新。
+4. 打开 `https://www.xiaohongshu.com/explore`，在地址栏菜单里选 **请求桌面网站**，并在该网站的设置里固定成桌面版（移动版网页到处是「打开 App」）。
+5. 想放到主屏幕的话，「添加到主屏幕」时**关掉「作为网页 App 打开」**：网页 App 模式下 Safari 扩展不会运行。
+
+设置入口和安卓一样：**长按页面右上角约 1 秒**，开关保存在 Safari 本地。
+
+> 这个方案还没有在 iPhone 实机上验证过；电脑上用同一个脚本模拟过首页、设置面板和开关。遇到问题欢迎提 issue。
+
 ## 原理
 
 - WebView 用**最新版 Chrome 桌面 UA**（包括 Client Hints），因为小红书的移动版网页功能少、到处弹「打开 App」。
