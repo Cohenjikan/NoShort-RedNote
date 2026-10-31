@@ -104,3 +104,19 @@ html.xl-hide-feed.xl-r-explore .feeds-content::after {
   line-height: 1.45;
   color: #6E6E6E;
 }
+
+/* ===================================================== 5. shorter top bar: 72 -> 48 px */
+/* The fixed header (.header-container, logo + search icon + menu) is 72 px tall with 40 px icons at
+ * top:16px, and pages pad 72 px for it. At 48 px the icons sit 4 px from each edge; the search box
+ * (fixed while closed, relative while open) and its dropdown move with it. */
+html.xl .header-container,
+html.xl .header-container header {
+  height: 48px !important;
+}
+html.xl .header-container .input-box,
+html.xl .header-container .min-width-search-icon {
+  top: 4px !important;
+}
+html.xl .feeds-page {
+  padding-top: 48px !important;
+}

@@ -25,4 +25,6 @@ These must never be committed (all are in .gitignore; check `git status` before 
 
 ## Release
 
+The app has a built-in updater (`Updater.kt`) that reads `versionCode=N` from the latest GitHub Release's notes; the workflow writes that line, so keep it when changing the workflow. The repo is public under MIT.
+
 Pushing to main triggers `.github/workflows/release.yml`, which builds a signed APK and publishes it as a GitHub Release (`xhs-lite.apk`). The signing key must stay the same every time, otherwise the update won't install over the old app and the login is lost.

@@ -50,11 +50,13 @@ class SettingsActivity : ComponentActivity() {
         col.addView(actionRow("重新加载页面") { setResult(RESULT_RELOAD); finish() })
         col.addView(divider())
         col.addView(actionRow("回到首页") { setResult(RESULT_HOME); finish() })
+        col.addView(divider())
+        col.addView(actionRow("检查更新") { Updater.check(this, quiet = false) })
 
         col.addView(section("调试"))
         col.addView(switchRow("页面内调试工具", "注入 eruda，右下角出现齿轮按钮；在 Console 里运行 __xl.probe() 查看选择器命中数", prefs.debug) { prefs.debug = it })
 
-        col.addView(text("版本 ${BuildConfig.VERSION_NAME}", Type.TINY, pal.muted).apply {
+        col.addView(text("版本 ${BuildConfig.VERSION_NAME}（${BuildConfig.VERSION_CODE}）", Type.TINY, pal.muted).apply {
             setPadding(dp(16), dp(24), dp(16), dp(16))
         })
 
@@ -68,6 +70,11 @@ class SettingsActivity : ComponentActivity() {
             WindowInsetsCompat.CONSUMED
         }
         setContentView(scroll)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Updater.resume(this)
     }
 
     private fun section(title: String) = text(title, Type.SMALL, pal.muted).apply {

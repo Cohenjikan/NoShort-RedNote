@@ -46,6 +46,10 @@ jobs:
           XHS_KEY_ALIAS: ${{ secrets.XHS_KEY_ALIAS }}
           XHS_KEY_PASSWORD: ${{ secrets.XHS_KEY_PASSWORD }}
         run: |
+          # versionCode = minutes since 2026-01-01 UTC (app/build.gradle.kts); the app's Updater reads it from the notes
+          epoch=$(date +%s)
+          echo "VERSION_CODE=$(( (epoch - 1767225600) / 60 ))" >> "$GITHUB_ENV"
+          export XHS_BUILD_EPOCH=$epoch
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
           cp app/build/outputs/apk/release/app-release.apk xhs-lite.apk
@@ -56,4 +60,5 @@ jobs:
         run: |
           tag="build-${{ github.run_number }}"
           msg="$(git log -1 --pretty=%s)"
-          gh release create "$tag" xhs-lite.apk --target "$GITHUB_SHA" --title "$tag · $msg" --notes "$msg" --latest
+          notes="$(printf '%s\n\nversionCode=%s' "$msg" "$VERSION_CODE")"
+          gh release create "$tag" xhs-lite.apk --target "$GITHUB_SHA" --title "$tag · $msg" --notes "$notes" --latest

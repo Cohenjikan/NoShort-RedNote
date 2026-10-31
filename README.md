@@ -32,6 +32,8 @@
 
 在 [Releases](../../releases/latest) 下载 `xhs-lite.apk`，允许「安装未知来源应用」后安装。不需要开开发者模式，也不需要 adb。
 
+之后不用再手动下载：App 启动时会检查 GitHub 上的最新版本（最多每 6 小时一次），有新版会提示，点一下就下载并调起系统安装；设置里也可以手动「检查更新」。第一次更新时系统会让你允许本应用安装应用。
+
 每个版本都用同一把签名密钥，新版直接覆盖安装，登录状态不丢。
 
 要求 Android 10+。开发时用的是小米 17 Pro Max（HyperOS），布局按 400dp 宽的屏幕调过，其他手机应该也能用。
@@ -68,14 +70,14 @@ node probe.mjs shot https://www.xiaohongshu.com/explore home --open-note
 ./gradlew assembleRelease
 ```
 
-Kotlin，单 Activity + WebView，依赖只有 `androidx.core`、`androidx.activity`、`androidx.webkit`。
+Kotlin，单 Activity + WebView，依赖只有 `androidx.core`、`androidx.activity`、`androidx.webkit`。更新器（`Updater.kt`）直接请求 GitHub Releases API，不用第三方库。
 
 推送到 `main` 后，GitHub Actions（`.github/workflows/release.yml`）会构建签名 APK 并发布到 Releases。需要配置这几个仓库 Secrets：`XHS_KEYSTORE_BASE64`、`XHS_KEYSTORE_PASSWORD`、`XHS_KEY_ALIAS`、`XHS_KEY_PASSWORD`。没有配置密钥时，本地构建会退回用 debug 密钥签名。
 
 ## 声明
 
 - 这是个人项目，和小红书（行吟信息科技）没有任何关系。内容都来自小红书官方网页，App 只是个浏览器壳，不收集、不上传任何数据。
-- 内置的 eruda 使用 MIT 许可证。
+- 本项目以 [MIT 许可证](LICENSE) 开源；内置的 eruda 同样是 MIT。
 
 ## 关于代码
 

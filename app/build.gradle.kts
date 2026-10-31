@@ -23,8 +23,9 @@ android {
         applicationId = "com.cohenjikan.xhslite"
         minSdk = 29
         targetSdk = 36
-        // every build is newer than the last (minutes since 2026-01-01 UTC), same scheme as Claude-Remote
-        val built = Instant.now()
+        // every build is newer than the last (minutes since 2026-01-01 UTC), same scheme as Claude-Remote.
+        // CI passes the build time in so it can write the same versionCode into the release notes for Updater.
+        val built = System.getenv("XHS_BUILD_EPOCH")?.toLongOrNull()?.let { Instant.ofEpochSecond(it) } ?: Instant.now()
         versionCode = ((built.epochSecond - 1_767_225_600L) / 60).toInt()
         versionName = "0.1 · " + DateTimeFormatter.ofPattern("MM-dd HH:mm").withZone(ZoneId.of("Asia/Shanghai")).format(built)
     }
