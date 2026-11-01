@@ -31,6 +31,9 @@
     feedItem: 'section.note-item',
     // open note: always .note-detail-mask > #noteContainer, whether opened from a feed or by URL
     note: '.note-detail-mask, #noteContainer',
+    // image area of an open note, and its first picture (duplicate slides are the swiper's loop copies)
+    noteMedia: '.note-detail-mask .media-container',
+    noteFirstImg: '.note-slider .swiper-slide:not(.swiper-slide-duplicate) img',
     // login modal / page
     login: '.login-container',
     // the site's own "只看图文" switch on the homepage feed; carries .checked-border while on
@@ -211,6 +214,33 @@
     if (g.parentNode !== bar) bar.appendChild(g);
   }
 
+  // ---------------------------------------------------------------- 1d. note pictures at their own ratio
+  // At 400 px the note's image area is short: max-height 240 px when opened from the feed, and just its
+  // min-height of 200 px when the note is loaded by URL (server-rendered, height: auto). A portrait
+  // picture then sits in it with wide empty bands left and right. Like the app, size the area to the
+  // first picture's ratio, up to what fits between the top bar and the like / comment bar. Video notes
+  // have no .note-slider and keep the site's size.
+  function fitNoteMedia() {
+    var box = document.querySelector(SEL.noteMedia);
+    var img = box && box.querySelector(SEL.noteFirstImg);
+    var h = 0;
+    if (img && img.naturalWidth) {
+      h = Math.round(Math.min(box.clientWidth * img.naturalHeight / img.naturalWidth, window.innerHeight - 160));
+    } else if (img && !img.__xlWait) {
+      img.__xlWait = true;
+      img.addEventListener('load', function () { apply('image'); }, { once: true });
+    }
+    var rule = h ? 'html.xl ' + SEL.noteMedia + '{height:' + h + 'px!important;max-height:none!important}' : '';
+    var s = document.getElementById('xl-media');
+    if (!s) {
+      if (!rule || !document.head) return;
+      s = document.createElement('style');
+      s.id = 'xl-media';
+      document.head.appendChild(s);
+    }
+    if (s.textContent !== rule) s.textContent = rule;
+  }
+
   // ---------------------------------------------------------------- 2. app nags the CSS missed
   function isOverlay(el) {
     var st = getComputedStyle(el);
@@ -357,6 +387,7 @@
         ensureGear();
         enforceImageOnly();
         hideNags();
+        fitNoteMedia();
         if (routeClass() === 'xl-r-explore') checkColumns();
       }
     } catch (e) {
