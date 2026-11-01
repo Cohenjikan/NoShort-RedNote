@@ -220,17 +220,26 @@
   // picture then sits in it with wide empty bands left and right. Like the app, size the area to the
   // first picture's ratio, up to what fits between the top bar and the like / comment bar. Video notes
   // have no .note-slider and keep the site's size.
+  // Until the size is known inject.css shows 3:4, the usual ratio. The site first shows the feed's
+  // cached cover and then swaps in the full picture, whose <img> has no size while it loads: the height
+  // found for a note is kept until another note opens, so the area doesn't drop back in between.
+  var mediaNote = '';
+  var mediaH = 0;
+
   function fitNoteMedia() {
     var box = document.querySelector(SEL.noteMedia);
-    var img = box && box.querySelector(SEL.noteFirstImg);
-    var h = 0;
-    if (img && img.naturalWidth) {
-      h = Math.round(Math.min(box.clientWidth * img.naturalHeight / img.naturalWidth, window.innerHeight - 160));
-    } else if (img && !img.__xlWait) {
-      img.__xlWait = true;
-      img.addEventListener('load', function () { apply('image'); }, { once: true });
+    var m = NOTE_RE.exec(location.pathname);
+    var id = m ? m[1] : box ? 'open' : '';
+    if (id !== mediaNote) {
+      mediaNote = id;
+      mediaH = 0;
     }
-    var rule = h ? 'html.xl ' + SEL.noteMedia + '{height:' + h + 'px!important;max-height:none!important}' : '';
+    var img = box && box.querySelector(SEL.noteFirstImg);
+    if (img && img.naturalWidth && box.clientWidth) {
+      mediaH = Math.round(Math.min(box.clientWidth * img.naturalHeight / img.naturalWidth, window.innerHeight - 160));
+    }
+    // body: one more type selector than the 3:4 default in inject.css, whose <style> stays last
+    var rule = mediaH ? 'html.xl body ' + SEL.noteMedia + ':has(.note-slider){height:' + mediaH + 'px!important;max-height:none!important}' : '';
     var s = document.getElementById('xl-media');
     if (!s) {
       if (!rule || !document.head) return;
@@ -402,6 +411,10 @@
     }
     hookHistory();
     document.addEventListener('click', blockSwitchClick, true);
+    // a note picture finished loading: size its area right away, not after the mutation debounce
+    document.addEventListener('load', function (e) {
+      if (e.target.tagName === 'IMG' && e.target.closest(SEL.noteMedia)) fitNoteMedia();
+    }, true);
     window.addEventListener('keydown', blockKeys, true);
     window.addEventListener('wheel', blockWheel, { capture: true, passive: false });
     var mo = new MutationObserver(schedule);

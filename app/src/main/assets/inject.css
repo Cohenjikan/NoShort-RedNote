@@ -101,6 +101,13 @@ html.xl [class*="autoplay-next"] {
   display: none !important;
 }
 
+/* image notes: until inject.js knows the first picture's size (fitNoteMedia), show 3:4, the usual
+ * ratio, instead of the site's 200-240 px strip */
+html.xl .note-detail-mask .media-container:has(.note-slider) {
+  height: min(133.33vw, calc(100vh - 160px)) !important;
+  max-height: none !important;
+}
+
 /* ===================================================== 4. optional switches (default off) */
 /* 4a. homepage: keep only the search box (channel tabs, feed, 只看图文 / 刷新 buttons go) */
 html.xl-hide-feed.xl-r-explore .channel-container,
