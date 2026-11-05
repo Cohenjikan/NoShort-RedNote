@@ -13,9 +13,8 @@ object UrlPolicy {
         EXTERNAL,
     }
 
-    /** Xiaohongshu itself, its CDNs, short links and login/captcha pages */
-    private val ALLOWED = listOf(
-        "xiaohongshu.com",
+    /** Xiaohongshu and RedNote (its international site, see [Sites]), CDNs, short links, login/captcha pages */
+    private val ALLOWED = Sites.DOMAINS + listOf(
         "xhscdn.com",
         "xhscdn.net",
         "xhslink.com",

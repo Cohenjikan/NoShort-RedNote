@@ -3,7 +3,7 @@ package com.cohenjikan.xhslite
 import android.content.Context
 import org.json.JSONObject
 
-/** The settings-page switches. All default off. */
+/** The settings-page switches (all default off), plus which site to open. */
 class Prefs(ctx: Context) {
     private val sp = ctx.getSharedPreferences("xhslite", Context.MODE_PRIVATE)
 
@@ -29,6 +29,27 @@ class Prefs(ctx: Context) {
     var debug: Boolean
         get() = sp.getBoolean("debug", false)
         set(v) = sp.edit().putBoolean("debug", v).apply()
+
+    /** which site to open: [SITE_AUTO] follows wherever the site last sent us, or [Sites.XHS] / [Sites.RED] */
+    var site: String
+        get() = sp.getString("site", SITE_AUTO) ?: SITE_AUTO
+        set(v) = sp.edit().putString("site", v).apply()
+
+    /** main site the last page was on, for [SITE_AUTO]; empty before the first page */
+    var lastSite: String
+        get() = sp.getString("lastSite", "") ?: ""
+        set(v) = sp.edit().putString("lastSite", v).apply()
+
+    /** the site [MainActivity] opens on start and for 回到首页 */
+    val homeSite: String
+        get() = when (val s = site) {
+            Sites.XHS, Sites.RED -> s
+            else -> lastSite.ifEmpty { Sites.XHS }
+        }
+
+    companion object {
+        const val SITE_AUTO = "auto"
+    }
 
     /** what inject.js reads as window.__XL_CFG */
     fun toJson(): String = JSONObject()

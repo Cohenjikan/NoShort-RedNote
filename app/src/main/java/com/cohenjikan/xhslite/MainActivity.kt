@@ -38,13 +38,13 @@ import org.json.JSONObject
 import kotlin.math.abs
 
 /**
- * One WebView on xiaohongshu.com/explore with a desktop UA, plus the injection layer in
- * assets/inject.js + inject.css. Long-press the top-right corner of the page for settings.
+ * One WebView on xiaohongshu.com/explore (or rednote.com/explore for overseas accounts, see [Sites])
+ * with a desktop UA, plus the injection layer in assets/inject.js + inject.css. Long-press the
+ * top-right corner of the page for settings.
  */
 class MainActivity : ComponentActivity() {
     companion object {
-        const val HOME = "https://www.xiaohongshu.com/explore"
-        private val SCRIPT_ORIGINS = setOf("https://xiaohongshu.com", "https://*.xiaohongshu.com")
+        private val SCRIPT_ORIGINS = Sites.ORIGINS
         /** hotspot for settings: this many dp from the top-right corner of the page, held this long */
         private const val HOTSPOT_DP = 64
         private const val HOLD_MS = 900L
@@ -66,6 +66,9 @@ class MainActivity : ComponentActivity() {
     /** prefs as last pushed into the page; onResume re-pushes when the settings page changed them */
     private var appliedCfg = ""
 
+    /** site pinned to xiaohongshu.com but sent to rednote.com: tried xiaohongshu.com/login once this run */
+    private var xhsLoginTried = false
+
     private var fullscreen: View? = null
     private var fullscreenCallback: WebChromeClient.CustomViewCallback? = null
 
@@ -82,7 +85,7 @@ class MainActivity : ComponentActivity() {
     private val settingsPage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
         when (r.resultCode) {
             SettingsActivity.RESULT_RELOAD -> web.reload()
-            SettingsActivity.RESULT_HOME -> web.loadUrl(HOME)
+            SettingsActivity.RESULT_HOME -> goHome()
         }
     }
 
@@ -125,7 +128,12 @@ class MainActivity : ComponentActivity() {
         }
 
         pushConfig()
-        if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) web.loadUrl(HOME)
+        if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) goHome()
+    }
+
+    private fun goHome() {
+        xhsLoginTried = false
+        web.loadUrl(Sites.home(prefs.homeSite))
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -176,6 +184,15 @@ class MainActivity : ComponentActivity() {
         web.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url.toString()
+                // pinned to the mainland site but an overseas IP got the 302 to rednote.com: /login isn't
+                // redirected, so offer the mainland login there (once; after that follow the site)
+                if (request.isForMainFrame && request.isRedirect && prefs.site == Sites.XHS && !xhsLoginTried &&
+                    Sites.isRednote(request.url.host?.lowercase() ?: "")
+                ) {
+                    xhsLoginTried = true
+                    view.loadUrl("https://${Sites.XHS}/login")
+                    return true
+                }
                 return when (UrlPolicy.decide(url, request.isForMainFrame)) {
                     UrlPolicy.Action.LOAD -> false
                     UrlPolicy.Action.BLOCK -> true
@@ -191,7 +208,10 @@ class MainActivity : ComponentActivity() {
                 progress.visibility = View.VISIBLE
             }
 
-            override fun onPageCommitVisible(view: WebView, url: String?) = inject(view)
+            override fun onPageCommitVisible(view: WebView, url: String?) {
+                rememberSite(url)
+                inject(view)
+            }
 
             override fun onPageFinished(view: WebView, url: String?) {
                 inject(view)
@@ -201,6 +221,7 @@ class MainActivity : ComponentActivity() {
 
             // fires for history.pushState / replaceState too; inject.js hooks those itself, this is a backstop
             override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
+                rememberSite(url)
                 if (isXhs(url)) view.evaluateJavascript("window.__xl&&__xl.apply('native')", null)
             }
 
@@ -301,9 +322,13 @@ class MainActivity : ComponentActivity() {
 
     private fun asset(name: String) = assets.open(name).bufferedReader().use { it.readText() }
 
-    private fun isXhs(url: String?): Boolean {
-        val host = url?.let { Uri.parse(it).host } ?: return false
-        return host == "xiaohongshu.com" || host.endsWith(".xiaohongshu.com")
+    /** xiaohongshu.com or rednote.com, any subdomain */
+    private fun isXhs(url: String?) = Sites.isOurs(url)
+
+    /** where the site sent us (e.g. the 302 to rednote.com); the next start opens there directly */
+    private fun rememberSite(url: String?) {
+        val site = Sites.mainSiteOf(url) ?: return
+        if (prefs.lastSite != site) prefs.lastSite = site
     }
 
     /** config + css + inject.js as one script; inject.js reads the two globals */

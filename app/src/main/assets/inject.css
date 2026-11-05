@@ -43,7 +43,7 @@ html.xl-grid-fallback .feeds-container > .note-item {
  * 发布 (creator site, section 6) goes too with the xl-hide-publish switch. */
 html.xl .bottom-menu-ai .channel-list > :has(a[href^="/ai_chat"]),
 html.xl .bottom-menu-ai .channel-list > :has(a[href^="/livelist"]),
-html.xl-hide-publish .bottom-menu-ai .channel-list > :has(a[href*="creator.xiaohongshu.com"]) {
+html.xl-hide-publish .bottom-menu-ai .channel-list > :has(a[href*="creator.xiaohongshu.com"], a[href*="creator.rednote.com"]) {
   display: none !important;
 }
 
@@ -161,7 +161,7 @@ html.xl .feeds-page {
   padding-top: 48px !important;
 }
 
-/* ===================================================== 6. publishing (creator.xiaohongshu.com) */
+/* ===================================================== 6. publishing (creator.xiaohongshu.com / creator.rednote.com) */
 /* The 发布 button opens the creator site's publish page: a 208 px menu column plus a 952 px wide
  * publish area. Drop the menu (only publishing is used here) and fit the publish area to the screen. */
 html.xl-creator .menu-container,

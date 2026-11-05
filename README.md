@@ -2,7 +2,7 @@
 
 网页版小红书，调整到适合手机的比例来使用。
 
-- **Android**：一个轻量 App，打开小红书网页版（xiaohongshu.com），按手机屏幕比例显示。
+- **Android**：一个轻量 App，打开小红书网页版（xiaohongshu.com，海外账号为 rednote.com），按手机屏幕比例显示。
 - **iPhone / iPad**：在 Safari 里用 Userscripts 扩展加载同一套脚本。
 
 ## 功能
@@ -10,6 +10,7 @@
 - 首页瀑布流、搜索、笔记详情（图文、视频）、评论
 - 发布笔记：底栏「发布」进入创作平台，已适配手机比例，可从相册选图片和视频
 - 扫码登录、手机号验证码登录；登录状态在重启和更新后都会保留
+- 支持海外版（RedNote）：海外手机号注册的账号只能在 rednote.com 登录，在海外打开时网站会自动跳转过去，App 会跟着走并记住
 - 全面屏手势返回，内容不会被状态栏和手势条挡住
 - 应用内更新
 
@@ -19,6 +20,7 @@
 
 | 开关 | 作用 |
 |---|---|
+| 站点 | 自动（默认，跟随网站跳转）、小红书（国内版，xiaohongshu.com）或 RedNote（海外版，rednote.com）。在海外用 +86 账号时选「小红书」，App 会打开 xiaohongshu.com 的登录页 |
 | 只留搜索 | 首页只显示搜索 |
 | 只看图文 | 推荐流只显示图文笔记 |
 | 隐藏发布 | 底栏不显示「发布」入口 |
@@ -36,9 +38,9 @@
 ### iPhone / iPad（Safari）
 
 1. 在 App Store 安装 [Userscripts](https://apps.apple.com/app/userscripts/id1463298887)。
-2. 打开 **设置 → App → Safari → 扩展 → Userscripts**，启用它，并允许它在 `xiaohongshu.com` 上运行。
+2. 打开 **设置 → App → Safari → 扩展 → Userscripts**，启用它，并允许它在 `xiaohongshu.com` 上运行（海外账号还要允许 `rednote.com`）。
 3. 用 Safari 打开 [`noshort-rednote.user.js`](https://github.com/Cohenjikan/NoShort-RedNote/releases/latest/download/noshort-rednote.user.js)，点地址栏的扩展按钮 → Userscripts → 安装。之后会自动更新。
-4. 打开 `https://www.xiaohongshu.com/explore`，在地址栏菜单里选择 **请求桌面网站**。
+4. 打开 `https://www.xiaohongshu.com/explore`（海外账号打开 `https://www.rednote.com/explore`），在地址栏菜单里选择 **请求桌面网站**。
 5. 如果要添加到主屏幕，记得关掉「作为网页 App 打开」，否则扩展不会运行。
 
 ## 开发

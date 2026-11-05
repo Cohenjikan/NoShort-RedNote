@@ -19,6 +19,7 @@ These must never be committed (all are in .gitignore; check `git status` before 
 
 ## Changing selectors
 
+- The site has two hosts with the same front end: www.xiaohongshu.com (mainland accounts) and www.rednote.com (overseas accounts; overseas IPs get a 302 there). Hosts live in `Sites.kt`; selectors must work on both, and text matches need English too.
 - Every site selector lives in `app/src/main/assets/inject.js` (`SEL`) and `inject.css`; edit nothing else.
 - Use `tools/probe` to check against the real site, not guesses: `node probe.mjs shot <url> <name> [--open-note] [--raw]`, then compare `out/*-outline.txt` with the screenshot. When the login expires, `node probe.mjs login` again (the user scans the QR code with their phone).
 - After a change, rebuild with `./gradlew assembleRelease` (signed with the local keystore) and copy the result to `xhs-lite.apk` in the project root for the user to install on the phone.

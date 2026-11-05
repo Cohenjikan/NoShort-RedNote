@@ -126,6 +126,8 @@ const out = `// ==UserScript==
 // @downloadURL  ${latest}
 // @match        https://www.xiaohongshu.com/*
 // @match        https://xiaohongshu.com/*
+// @match        https://www.rednote.com/*
+// @match        https://rednote.com/*
 // @run-at       document-start
 // @inject-into  page
 // @noframes

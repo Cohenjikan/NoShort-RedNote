@@ -1,5 +1,6 @@
 package com.cohenjikan.xhslite
 
+import android.app.AlertDialog
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.Gravity
@@ -40,6 +41,9 @@ class SettingsActivity : ComponentActivity() {
         })
         bar.addView(text("设置", Type.TITLE))
         col.addView(bar)
+
+        col.addView(section("站点"))
+        col.addView(siteRow(prefs))
 
         col.addView(section("页面"))
         col.addView(switchRow("只留搜索", "隐藏首页频道和推荐流", prefs.hideFeed) { prefs.hideFeed = it })
@@ -115,6 +119,45 @@ class SettingsActivity : ComponentActivity() {
             addView(texts, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(sw)
             setOnClickListener { sw.toggle() }
+        }
+    }
+
+    /**
+     * 自动 / 小红书 / RedNote. Overseas-number accounts only log in on rednote.com; mainland accounts on
+     * xiaohongshu.com, where an overseas IP is sent to rednote.com unless pinned (MainActivity then offers
+     * xiaohongshu.com/login). Picking one goes to that site's homepage when this page closes.
+     */
+    private fun siteRow(prefs: Prefs): View {
+        val keys = arrayOf(Prefs.SITE_AUTO, Sites.XHS, Sites.RED)
+        val names = arrayOf("自动", "小红书（国内版）", "RedNote（海外版）")
+        val subs = arrayOf(
+            "跟随网站跳转：在海外未登录时网站会转到 rednote.com",
+            "xiaohongshu.com，+86 手机号注册的账号",
+            "rednote.com，海外手机号注册的账号",
+        )
+        fun idx() = keys.indexOf(prefs.site).coerceAtLeast(0)
+        val title = text(names[idx()])
+        val sub = text(subs[idx()], Type.SMALL, pal.muted).apply { setPadding(0, dp(2), 0, 0) }
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+            addView(title)
+            addView(sub)
+            setOnClickListener {
+                AlertDialog.Builder(this@SettingsActivity, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                    .setTitle("站点")
+                    .setSingleChoiceItems(names, idx()) { d, which ->
+                        if (keys[which] != prefs.site) {
+                            prefs.site = keys[which]
+                            title.text = names[which]
+                            sub.text = subs[which]
+                            setResult(RESULT_HOME)
+                        }
+                        d.dismiss()
+                    }
+                    .setNegativeButton("取消", null)
+                    .show()
+            }
         }
     }
 

@@ -1,6 +1,9 @@
 /*
  * xhs-lite injection layer.
  *
+ * Runs on www.xiaohongshu.com and on www.rednote.com, the international site overseas accounts
+ * log in on (same front end, so the same selectors; its text may be in English).
+ *
  * Every Xiaohongshu-specific selector lives in SEL below and in inject.css. When the site changes,
  * edit only those two files. Selectors were checked 2026-11-01 against the logged-in site at 400x869
  * with tools/probe/probe.mjs; re-run it to compare after a site update.
@@ -53,9 +56,9 @@
   };
 
   // Text of "open/download the app" nags. Used as a fallback for nags the CSS does not catch.
-  var APP_NAG = /(打开|下载|前往|去)\s*(小红书)?\s*App|App\s*内(打开|查看)|在\s*App\s*(中|里)/i;
-  // Never hide anything that looks like login (phone + code, QR code)
-  var LOGIN = /登录|验证码|扫码|手机号/;
+  var APP_NAG = /(打开|下载|前往|去)\s*(小红书|RedNote)?\s*App|App\s*内(打开|查看)|在\s*App\s*(中|里)|(open|download|get)\s+(the\s+)?(rednote\s+)?app\b|open\s+in\s+(the\s+)?app\b/i;
+  // Never hide anything that looks like login (phone + code, QR code), Chinese or English (rednote.com)
+  var LOGIN = /登录|验证码|扫码|手机号|log\s*in|sign\s*(in|up)|verification|qr\s*code|phone/i;
 
   // Note URLs: /explore/<id>, /red_video/<id>, /search_result/<id>, /discovery/item/<id>
   var NOTE_RE = /^\/(?:explore|red_video|search_result|discovery\/item)\/([0-9a-f]{16,32})/i;
@@ -126,8 +129,8 @@
     if (!h) return;
     var want = {
       'xl': true,
-      // creator.xiaohongshu.com: the publishing site behind the 发布 button, laid out for desktop only
-      'xl-creator': location.host === 'creator.xiaohongshu.com',
+      // creator.xiaohongshu.com / creator.rednote.com: the publishing site behind 发布, laid out for desktop only
+      'xl-creator': /^creator\.(xiaohongshu|rednote)\.com$/.test(location.host),
       'xl-r-note': false, 'xl-r-search': false, 'xl-r-explore': false, 'xl-r-other': false,
       'xl-hide-feed': !!cfg.hideFeed,
       'xl-hide-related': !!cfg.hideRelated,

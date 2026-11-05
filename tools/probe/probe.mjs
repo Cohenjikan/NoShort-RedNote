@@ -1,7 +1,8 @@
 // Desktop stand-in for the app: Chrome at the phone's size (400x869 CSS px, dpr 3) with the app's
 // desktop UA, injecting the same bundle MainActivity injects. Login lives in ./profile (gitignored).
 //
-//   node probe.mjs login                 open a window; scan the QR code with the phone; closes when logged in
+//   node probe.mjs login [url]           open a window; scan the QR code with the phone; closes when logged in
+//                                        (url: https://www.rednote.com/explore for an overseas account)
 //   node probe.mjs shot <url> [name]     headless: load, inject, screenshot + DOM outline into ./out/<name>*
 //   node probe.mjs shot <url> [name] --raw            same without injection
 //   node probe.mjs shot <url> [name] --open-note      also tap the first feed card and capture the open note
@@ -82,7 +83,7 @@ async function capture(page, tag) {
 if (cmd === 'login') {
   const ctx = await open(false);
   const page = ctx.pages()[0] || (await ctx.newPage());
-  await page.goto('https://www.xiaohongshu.com/explore');
+  await page.goto(url);
   console.log('waiting for login (scan the QR code with the phone)...');
   const until = Date.now() + 10 * 60 * 1000;
   let ok = false;
