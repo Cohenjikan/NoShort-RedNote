@@ -215,6 +215,26 @@
       });
     }
     if (g.parentNode !== bar) bar.appendChild(g);
+    placeGear(bar, g);
+  }
+
+  // The CSS default (left: 96px) clears the 小红书 logo; rednote.com shows the wider 小红书 + rednote
+  // mark, which covered the gear. So sit just right of whatever logo pictures the bar's left part holds.
+  function placeGear(bar, g) {
+    var b = bar.getBoundingClientRect();
+    if (!b.width) return;
+    var right = 0;
+    var els = bar.querySelectorAll('img, svg, [class*="logo"]');
+    for (var i = 0; i < els.length; i++) {
+      var el = els[i];
+      if (g.contains(el)) continue;
+      var r = el.getBoundingClientRect();
+      if (!r.width || !r.height || r.width > b.width * 0.6) continue;
+      if (r.left - b.left > b.width * 0.35) continue; // icons on the right (search etc.)
+      right = Math.max(right, r.right - b.left);
+    }
+    var left = Math.max(96, Math.round(right) + 4) + 'px';
+    if (g.style.left !== left) g.style.left = left;
   }
 
   // ---------------------------------------------------------------- 1d. note pictures at their own ratio
